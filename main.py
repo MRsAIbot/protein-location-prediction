@@ -1,20 +1,26 @@
 '''
 @author: Tobias Rijken
 @date: 23 February 2015
-@affiliation: University College London
 '''
 
 from Bio import SeqIO
 import numpy as np
 import FeatureBuilder as fb
 
-files = ['cyto.fasta', 'mito.fasta', 'nucleus.fasta', 'secreted.fasta']
+
 
 def read_data(filename):
+	'''
+	Input:
+		- filename: string representing a filename in FASTA format
+	Output:
+		- list of sequence records
+	'''
 	handle = open("data/" + filename, "rU")
 	records = list(SeqIO.parse(handle, "fasta"))
 	handle.close()
 	return records
+
 
 def label_data(records, label):
 	'''
@@ -26,13 +32,11 @@ def label_data(records, label):
 	'''
 	return zip(records, [label]*len(records))
 
-def compute_features():
-	pass
-
-def construct_trainset():
-	pass
 
 def main():
+	## Define the filenames
+	files = ['cyto.fasta', 'mito.fasta', 'nucleus.fasta', 'secreted.fasta']
+
 	## Read and label data ('C' for cytosolic, 'S' for secreted, 'M' for mitochondrial, 'N' for nuclear proteins respectively)
 	labeled_data = []
 	for datafile in files:
@@ -41,6 +45,7 @@ def main():
 
 	# print len(labeled_data) # returns 9222
 	print "Hello World"
+
 
 if __name__ == '__main__':
 	main()

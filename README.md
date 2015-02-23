@@ -20,6 +20,8 @@ protein sequences.
 	|	cyto.fasta
 ```
 
+Now, you can run the experiment as follows:
+
 ```
 python main.py
 ```
