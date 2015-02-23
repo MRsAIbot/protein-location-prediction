@@ -4,9 +4,10 @@
 '''
 
 from Bio import SeqIO
+from sklearn import cross_validation
+
 import numpy as np
 import FeatureBuilder as fb
-
 
 
 def read_data(filename):
@@ -42,6 +43,17 @@ def main():
 	for datafile in files:
 		r = read_data(datafile)
 		labeled_data += label_data(r,datafile[0].upper())
+
+	## Model 1: sequence length
+	feature_model1 = fb.FeatureBuilder(labeled_data,['seq_len'])
+	feature_model1.compute_features()
+	X,Y = feature_model1.get_trainset()
+
+	print X[:20]
+	print Y[:10]
+
+	## Crossvalidation
+	skf = cross_validation.StratifiedKFold(Y,n_folds=5)
 
 	# print len(labeled_data) # returns 9222
 	print "Hello World"
