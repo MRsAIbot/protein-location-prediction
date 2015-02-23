@@ -46,11 +46,10 @@ def main():
 
 	## Model 1: sequence length
 	feature_model1 = fb.FeatureBuilder(labeled_data,['seq_len'])
+
 	feature_model1.compute_features()
 	X,Y = feature_model1.get_trainset()
 
-	print X[:20]
-	print Y[:10]
 
 	## Crossvalidation
 	skf = cross_validation.StratifiedKFold(Y,n_folds=5)
