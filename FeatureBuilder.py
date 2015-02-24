@@ -33,7 +33,7 @@ class FeatureBuilder(object):
 			- float: representing the molecular weight of the protein
 		'''
 		PA = ProteinAnalysis(str(record.seq))
-		return PA.molecular_weight
+		return PA.molecular_weight()
 
 	def isoelectric_point(self, record):
 		'''
@@ -75,25 +75,32 @@ class FeatureBuilder(object):
 			- computes the features as specified in feature_list for every
 			for every data entry and outputs an numpy array
 		'''
-
-		'''
-		TODO:
-		- feature normalisation
-		'''
+		amino_acids = ['G','P','A','V','L','I','M','C','F','Y','W','H','K',\
+			'R','Q','N','E','D','S','T']
 
 		## Set default feature list to the class feature list
 		feature_list = feature_list or self.feature_list
 
-		if feature_list != self.feature_list:
-			self.X = np.empty(len(self.raw_data),len(feature_list))
+		feature_count = len(feature_list)
+		if "gl_aac" in feature_list:
+			feature_count += 19
+		self.X = np.empty([len(self.raw_data),feature_count])
 
-		for i,f in enumerate(feature_list):
+		for f in feature_list:
+			i = 0
 			if f == "seq_len":
-				# TODO: compute feature for every data point 
 				self.X[:,i] = np.array([self.sequence_length(tup[0]) for tup in self.raw_data])
-			elif f == "":
-				# TODO: ...
-				pass
+				i += 1
+			elif f == "mol_wght":
+				self.X[:,i] = np.array([self.molecular_weight(tup[0]) for tup in self.raw_data])
+				i += 1
+			elif f == "isoelec":
+				self.X[:,i] = np.array([self.isoelectric_point(tup[0]) for tup in self.raw_data])
+				i += 1
+			elif f == "gl_aac":
+				for aa in amino_acids:
+					self.X[:,i] = np.array([self.amino_acid_composition(tup[0])[aa] for tup in self.raw_data])
+					i += 1
 
-	def get_trainset(self):
+	def get_dataset(self):
 		return self.X, self.Y

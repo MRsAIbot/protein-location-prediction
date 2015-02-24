@@ -46,20 +46,33 @@ def main():
 		labeled_data += label_data(r,datafile[0].upper())
 
 	## Model 1: sequence length
-	feature_model1 = fb.FeatureBuilder(labeled_data,['seq_len'])
+	feature_model1 = fb.FeatureBuilder(labeled_data,['seq_len',\
+		'isoelec','gl_aac'])
 
 	feature_model1.compute_features()
-	X,Y = feature_model1.get_trainset()
+	X,Y = feature_model1.get_dataset()
+
+	# print X[:10]
+	# print Y[:10]
 
 	# Normalise the data
-	X_norm = preprocessing.normalize(X, norm='l2')
+	X_norm = preprocessing.normalize(X, axis=0, norm='l2')
+
+	# print X_norm[:10]
 
 
 	## Crossvalidation
 	skf = cross_validation.StratifiedKFold(Y,n_folds=5)
 
+	c_range = 10.0 ** np.arange(-2,9)
+	gamma_range = 10.0 ** np.arange(-5,4)
+	param_grid = dict(gamma=gamma_range, C=c_range)
+	cv = cross_validation.StratifiedKFold(y=Y_train, n_folds=3)
+	grid = GridSearchCV(SVC(), param_grid=param_grid, cv=cv)
+	grid.fit(X_train,Y_train)
+	print "Accuracy after grid search CV: {0}".format(grid.score(X_test, Y_test))
+
 	# print len(labeled_data) # returns 9222
-	print "Hello World"
 
 
 if __name__ == '__main__':
