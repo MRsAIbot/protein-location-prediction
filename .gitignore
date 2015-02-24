@@ -54,4 +54,7 @@ docs/_build/
 target/
 
 # FASTA data files
-data/
+data/*.fasta
+
+# Experimentation files
+playground.py
