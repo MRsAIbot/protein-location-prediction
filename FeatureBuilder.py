@@ -4,6 +4,7 @@
 '''
 
 import numpy as np
+from Bio.SeqUtils.ProtParam import ProteinAnalysis
 
 class FeatureBuilder(object):
 	"""docstring for FeatureBuilder"""
@@ -20,26 +21,51 @@ class FeatureBuilder(object):
 		Input:
 			- record: a SeqRecord
 		Output:
-			- integer that represents the length of 
+			- integer: that represents the length of the protein sequence
 		'''
 		return len(record.seq)
+
+	def molecular_weight(self, record):
+		'''
+		Input:
+			- record: a SeqRecord
+		Output:
+			- float: representing the molecular weight of the protein
+		'''
+		PA = ProteinAnalysis(str(record.seq))
+		return PA.molecular_weight
+
+	def isoelectric_point(self, record):
+		'''
+		Input:
+			- record: a SeqRecord
+		Output:
+			- float: representing the isoelectric point
+		'''
+		PA = ProteinAnalysis(str(record.seq))
+		return PA.isoelectric_point()
 
 	def amino_acid_composition(self, record):
 		'''
 		Input:
 			- record: a SeqRecord
 		Output:
-			- a dictionary that represents the distribution of amino acids in
+			- dictionary: representing the distribution of amino acids in
 			the sequence
 		'''
-		amino_acids = ['G','P','A','V','L','I','M','C','F','Y','W','H','K',\
-			'R','Q','N','E','D','S','T']
-		amino_acid_dict = dict(zip(amino_acids, [0]*len(amino_acids)))
-		
-		for i in record.seq:
-			amino_acid_dict[i] += 1
-		
-		return {k:v/float(len(record.seq)) for k,v in amino_acid_dict.items()}
+		PA = ProteinAnalysis(str(record.seq))
+		return PA.get_amino_acids_percent()
+
+	def amino_acid_composition_first50(self, record):
+		'''
+		Input:
+			- record: a SeqRecord
+		Output:
+			- dictionary: representing the distribution of amino acids over the
+			first 50 amino acids
+		'''
+		PA = ProteinAnalysis(str(record.seq)[:50])
+		return PA.get_amino_acids_percent()
 
 	def compute_features(self, feature_list = None):
 		'''

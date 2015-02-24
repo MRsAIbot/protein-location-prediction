@@ -5,6 +5,7 @@
 
 from Bio import SeqIO
 from sklearn import cross_validation
+from sklearn import preprocessing
 
 import numpy as np
 import FeatureBuilder as fb
@@ -49,6 +50,9 @@ def main():
 
 	feature_model1.compute_features()
 	X,Y = feature_model1.get_trainset()
+
+	# Normalise the data
+	X_norm = preprocessing.normalize(X, norm='l2')
 
 
 	## Crossvalidation
