@@ -6,6 +6,7 @@
 from Bio import SeqIO
 from sklearn import cross_validation
 from sklearn import preprocessing
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import confusion_matrix
 from sklearn.svm import SVC
@@ -87,9 +88,9 @@ def main():
 	clf = SVC(kernel='rbf', cache_size=1000)
 
 	skf = cross_validation.StratifiedKFold(y=Y, n_folds=5)
-	scores = cross_validation.cross_val_score(clf, X_norm, Y, cv=skf)
+	scores_svm = cross_validation.cross_val_score(clf, X_norm, Y, cv=skf)
 
-	print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+	print("Accuracy: %0.4f (+/- %0.4f)" % (scores_svm.mean(), scores_svm.std() * 2))
 
 	# ## Grid parameters
 	# c_range = 10.0 ** np.arange(-2,9)
@@ -102,7 +103,11 @@ def main():
 	# grid.fit(X_train,Y_train)
 	# print "Accuracy after grid search CV: {0}".format(grid.score(X_test, Y_test))
 
-	# print len(labeled_data) # returns 9222
+	## Random Forest
+	rf = RandomForestClassifier()
+	scores_rf = cross_validation.cross_val_score(rf, X_norm, Y, cv=skf)
+
+	print("Accuracy: %0.4f (+/- %0.4f)" % (scores_rf.mean(), scores_rf.std() * 2))
 
 
 if __name__ == '__main__':
