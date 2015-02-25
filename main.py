@@ -6,9 +6,24 @@
 from Bio import SeqIO
 from sklearn import cross_validation
 from sklearn import preprocessing
+from sklearn.grid_search import GridSearchCV
+from sklearn.metrics import confusion_matrix
+from sklearn.svm import SVC
 
+import cPickle as pickle
 import numpy as np
 import FeatureBuilder as fb
+import matplotlib.pyplot as plt
+
+
+def plot_confustion_matrix(cm):
+	plt.matshow(cm)
+	plt.title('Confusion matrix')
+	plt.colorbar()
+	plt.ylabel('True label')
+	plt.xlabel('Predicted label')
+	plt.show()
+	return 0
 
 
 def read_data(filename):
@@ -46,31 +61,46 @@ def main():
 		labeled_data += label_data(r,datafile[0].upper())
 
 	## Model 1: sequence length
-	feature_model1 = fb.FeatureBuilder(labeled_data,['seq_len',\
-		'isoelec','gl_aac'])
+	feature_model1 = fb.FeatureBuilder(labeled_data,['seq_len','sec_str',\
+		'isoelec','gl_aac','gravy'])
+	# feature_model1 = fb.FeatureBuilder(labeled_data,['seq_len'])
 
 	feature_model1.compute_features()
 	X,Y = feature_model1.get_dataset()
 
+	# with open("save.p","wb") as fp:
+	# 	pickle.dump(X,fp)
+
 	# print X[:10]
 	# print Y[:10]
 
-	# Normalise the data
+	## Normalise the data
 	X_norm = preprocessing.normalize(X, axis=0, norm='l2')
 
-	# print X_norm[:10]
+	print X_norm[:10]
 
+	## Split the dataset in train and test sets
+	X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(
+		X_norm, Y, test_size=0.25, random_state=1)
 
-	## Crossvalidation
-	skf = cross_validation.StratifiedKFold(Y,n_folds=5)
+	## Train SVM
+	clf = SVC(kernel='rbf', cache_size=1000)
 
-	c_range = 10.0 ** np.arange(-2,9)
-	gamma_range = 10.0 ** np.arange(-5,4)
-	param_grid = dict(gamma=gamma_range, C=c_range)
-	cv = cross_validation.StratifiedKFold(y=Y_train, n_folds=3)
-	grid = GridSearchCV(SVC(), param_grid=param_grid, cv=cv)
-	grid.fit(X_train,Y_train)
-	print "Accuracy after grid search CV: {0}".format(grid.score(X_test, Y_test))
+	skf = cross_validation.StratifiedKFold(y=Y, n_folds=5)
+	scores = cross_validation.cross_val_score(clf, X_norm, Y, cv=skf)
+
+	print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+	# ## Grid parameters
+	# c_range = 10.0 ** np.arange(-2,9)
+	# gamma_range = 10.0 ** np.arange(-5,4)
+	# param_grid = dict(gamma=gamma_range, C=c_range)
+	
+	# ## Crossvalidation
+	# skf = cross_validation.StratifiedKFold(y=Y_train, n_folds=5)
+	# grid = GridSearchCV(SVC(), param_grid=param_grid, cv=skf)
+	# grid.fit(X_train,Y_train)
+	# print "Accuracy after grid search CV: {0}".format(grid.score(X_test, Y_test))
 
 	# print len(labeled_data) # returns 9222
 

@@ -4,6 +4,7 @@
 '''
 
 import numpy as np
+from Bio.SeqUtils import ProtParamData
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
 
 class FeatureBuilder(object):
@@ -24,6 +25,8 @@ class FeatureBuilder(object):
 			- integer: that represents the length of the protein sequence
 		'''
 		return len(record.seq)
+		# PA = ProteinAnalysis(str(record.seq))
+		# return PA.length
 
 	def molecular_weight(self, record):
 		'''
@@ -67,6 +70,24 @@ class FeatureBuilder(object):
 		PA = ProteinAnalysis(str(record.seq)[:50])
 		return PA.get_amino_acids_percent()
 
+	def gravy(self, record):
+		'''
+		Input:
+			- record: a SeqRecord
+		Ouput:
+			- float: representing the gravy according to Kyte and Doolittle
+		'''
+		PA = ProteinAnalysis(str(record.seq))
+		gravy_list = [ProtParamData.kd[aa] for aa in PA.sequence if aa in ProtParamData.kd]
+		total_gravy = sum(gravy_list) 
+		return total_gravy / float(len(gravy_list))
+
+	def secondary_structure(self, record):
+		'''
+		'''
+		PA = ProteinAnalysis(str(record.seq))
+		return PA.secondary_structure_fraction()
+
 	def compute_features(self, feature_list = None):
 		'''
 		Input:
@@ -84,10 +105,12 @@ class FeatureBuilder(object):
 		feature_count = len(feature_list)
 		if "gl_aac" in feature_list:
 			feature_count += 19
+		if "sec_str" in feature_list:
+			feature_count += 2
 		self.X = np.empty([len(self.raw_data),feature_count])
 
+		i = 0
 		for f in feature_list:
-			i = 0
 			if f == "seq_len":
 				self.X[:,i] = np.array([self.sequence_length(tup[0]) for tup in self.raw_data])
 				i += 1
@@ -101,6 +124,13 @@ class FeatureBuilder(object):
 				for aa in amino_acids:
 					self.X[:,i] = np.array([self.amino_acid_composition(tup[0])[aa] for tup in self.raw_data])
 					i += 1
+			elif f == "sec_str":
+				self.X[:,i:i+3] = a = np.array([np.asarray(self.secondary_structure(tup[0])) for tup in self.raw_data])
+				i += 3
+			elif f == "gravy":
+				self.X[:,i] = np.array([self.gravy(tup[0]) for tup in self.raw_data])
+				i += 1
+
 
 	def get_dataset(self):
 		return self.X, self.Y
