@@ -85,12 +85,19 @@ def main():
 		X_norm, Y, test_size=0.25, random_state=1)
 
 	## Train SVM
-	clf = SVC(kernel='rbf', cache_size=1000)
+	clf = SVC(kernel='linear', cache_size=1000)
 
 	skf = cross_validation.StratifiedKFold(y=Y, n_folds=5)
+	kf = cross_validation.KFold(n=len(Y), n_folds=5)
 	scores_svm = cross_validation.cross_val_score(clf, X_norm, Y, cv=skf)
 
 	print("Accuracy: %0.4f (+/- %0.4f)" % (scores_svm.mean(), scores_svm.std() * 2))
+	print scores_svm
+
+	## Single train SVM
+	# clf1 = SVC(kernel='rbf')
+	# clf1.fit(X_train, Y_train)
+	# print clf1.score(X_test, Y_test)
 
 	# ## Grid parameters
 	# c_range = 10.0 ** np.arange(-2,9)
@@ -108,6 +115,12 @@ def main():
 	scores_rf = cross_validation.cross_val_score(rf, X_norm, Y, cv=skf)
 
 	print("Accuracy: %0.4f (+/- %0.4f)" % (scores_rf.mean(), scores_rf.std() * 2))
+	print scores_rf
+
+	## Single train RF
+	# rf1 = RandomForestClassifier()
+	# rf1.fit(X_train, Y_train)
+	# print rf1.score(X_test, Y_test)
 
 
 if __name__ == '__main__':

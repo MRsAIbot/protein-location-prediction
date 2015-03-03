@@ -25,3 +25,16 @@ Now, you can run the experiment as follows:
 ```
 python main.py
 ```
+
+## Software packages
+
+I used the following software packages:
+
+1. [Biopython](http://biopython.org/wiki/Main_Page) - tools for biological computation in Python
+2. [scikit-learn](http://scikit-learn.org/stable/) - machine learning tools in Python
+
+## Installation & running
+
+### Installation
+
+### Running
