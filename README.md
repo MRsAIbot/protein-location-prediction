@@ -20,12 +20,6 @@ protein sequences.
 	|	cyto.fasta
 ```
 
-Now, you can run the experiment as follows:
-
-```
-python main.py
-```
-
 ## Software packages
 
 I used the following software packages:
@@ -38,3 +32,9 @@ I used the following software packages:
 ### Installation
 
 ### Running
+
+Now, you can run the experiment as follows:
+
+```
+python main.py
+```
