@@ -4,11 +4,17 @@
 '''
 
 import numpy as np
-from Bio.SeqUtils import ProtParamData
+from Bio.Alphabet import IUPAC
+from Bio.Seq import Seq
+from Bio.SeqUtils import ProtParamData, molecular_weight
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
+from collections import Counter
 
 class FeatureBuilder(object):
 	"""docstring for FeatureBuilder"""
+
+	amino_acids = ['G','P','A','V','L','I','M','C','F','Y','W','H','K',\
+			'R','Q','N','E','D','S','T']
 
 	def __init__(self, data, feature_list):
 		super(FeatureBuilder, self).__init__()
@@ -36,7 +42,15 @@ class FeatureBuilder(object):
 			- float: representing the molecular weight of the protein
 		'''
 		PA = ProteinAnalysis(str(record.seq))
-		return PA.molecular_weight()
+
+		counter = Counter(str(record.seq))
+		non_prot_count = sum([v for k,v in counter.items() if k not in self.amino_acids])
+		cleaned_seq = Seq(''.join(c for c in str(record.seq) if c in self.amino_acids), IUPAC.protein)
+
+		mol_weight = molecular_weight(seq=cleaned_seq, monoisotopic=PA.monoisotopic)
+		avg_mol_weight = mol_weight/float(len(cleaned_seq))
+
+		return mol_weight + non_prot_count * avg_mol_weight
 
 	def isoelectric_point(self, record):
 		'''
@@ -84,6 +98,10 @@ class FeatureBuilder(object):
 
 	def secondary_structure(self, record):
 		'''
+		Input:
+			- record: a SeqRecord
+		Output:
+			- tuple of integers
 		'''
 		PA = ProteinAnalysis(str(record.seq))
 		return PA.secondary_structure_fraction()

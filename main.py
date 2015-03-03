@@ -63,7 +63,7 @@ def main():
 
 	## Model 1: sequence length
 	feature_model1 = fb.FeatureBuilder(labeled_data,['seq_len','sec_str',\
-		'isoelec','gl_aac','gravy'])
+		'isoelec','gl_aac','gravy', 'mol_wght'])
 	# feature_model1 = fb.FeatureBuilder(labeled_data,['seq_len'])
 
 	feature_model1.compute_features()
