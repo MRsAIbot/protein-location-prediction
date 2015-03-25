@@ -84,6 +84,17 @@ class FeatureBuilder(object):
 		PA = ProteinAnalysis(str(record.seq)[:50])
 		return PA.get_amino_acids_percent()
 
+	def amino_acid_composition_last50(self, record):
+		'''
+		Input:
+			- record: a SeqRecord
+		Output:
+			- dictionary: representing the distribution of amino acids over the
+			last 50 amino acids
+		'''
+		PA = ProteinAnalysis(str(record.seq)[-50:])
+		return PA.get_amino_acids_percent()
+
 	def gravy(self, record):
 		'''
 		Input:
@@ -125,6 +136,10 @@ class FeatureBuilder(object):
 			feature_count += 19
 		if "sec_str" in feature_list:
 			feature_count += 2
+		if "loc_aac_first" in feature_list:
+			feature_count += 19
+		if "loc_aac_last" in feature_list:
+			feature_count += 19
 		self.X = np.empty([len(self.raw_data),feature_count])
 
 		i = 0
@@ -148,6 +163,14 @@ class FeatureBuilder(object):
 			elif f == "gravy":
 				self.X[:,i] = np.array([self.gravy(tup[0]) for tup in self.raw_data])
 				i += 1
+			elif f == "loc_aac_first":
+				for aa in amino_acids:
+					self.X[:,i] = np.array([self.amino_acid_composition_first50(tup[0])[aa] for tup in self.raw_data])
+					i += 1
+			elif f == "loc_aac_last":
+				for aa in amino_acids:
+					self.X[:,i] = np.array([self.amino_acid_composition_last50(tup[0])[aa] for tup in self.raw_data])
+					i += 1
 
 
 	def get_dataset(self):
